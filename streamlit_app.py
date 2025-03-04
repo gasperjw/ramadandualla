@@ -1,85 +1,95 @@
 import streamlit as st
 import pandas as pd
-from itertools import chain
 
-# Read Google Sheet data
-sheet_url = "https://docs.google.com/spreadsheets/d/1L47EyHGWSRkEdCybjH1Sp_OLKbB9LpZshpq9GItqxNw/export?format=csv"
+# Read Google Sheet data with correct URL format
+sheet_url = "https://docs.google.com/spreadsheets/d/1L47EyHGWSRkEdCybjH1Sp_OLKbB9LpZshpq9GItqxNw/export?format=csv&gid=1747270692"
 df = pd.read_csv(sheet_url)
 
-# Process data to create individual cards
+# Process data with correct column names
 cards = []
 for _, row in df.iterrows():
-    person = row['Person']
+    person = row['Name']
     for i in range(1, 4):
-        dua = row[f'Dua {i}']
+        dua = row[f"Du'a {i}"]
         if pd.notna(dua):
             cards.append({
                 "text": dua,
                 "person": person
             })
 
-# Initialize session state for card navigation
+# Initialize session state
 if 'current_card' not in st.session_state:
     st.session_state.current_card = 0
 
-# Function to handle navigation
-def navigate(direction):
-    if direction == 'next':
-        st.session_state.current_card = (st.session_state.current_card + 1) % len(cards)
-    else:
-        st.session_state.current_card = (st.session_state.current_card - 1) % len(cards)
+# Navigation functions
+def next_card():
+    st.session_state.current_card = (st.session_state.current_card + 1) % len(cards)
 
-# Custom CSS for styling
+def prev_card():
+    st.session_state.current_card = (st.session_state.current_card - 1) % len(cards)
+
+# Custom CSS with improved styling
 st.markdown("""
 <style>
     .card {
-        padding: 2rem;
-        margin: 2rem 0;
+        padding: 3rem;
+        margin: 2rem auto;
         border-radius: 15px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        background-color: #ffffff;
-        min-height: 300px;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        background: white;
+        max-width: 600px;
+        min-height: 400px;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
+        text-align: center;
     }
     .dua-text {
-        font-size: 1.5rem;
-        text-align: center;
-        margin-bottom: 1rem;
+        font-size: 1.8rem;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+        color: #2c3e50;
     }
     .person-name {
-        font-size: 1rem;
-        color: #666666;
+        font-size: 1.2rem;
+        color: #7f8c8d;
         margin-top: auto;
+        font-style: italic;
     }
     .nav-button {
-        width: 100px;
+        padding: 0.8rem 2rem;
+        border-radius: 8px;
+        font-size: 1.1rem;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# Display current card
+# Card display
 if cards:
     current = cards[st.session_state.current_card]
     
-    # Card container
     st.markdown(f"""
     <div class="card">
-        <div class="dua-text">{current['text']}</div>
-        <div class="person-name">- {current['person']} -</div>
+        <div class="dua-text">"{current['text']}"</div>
+        <div class="person-name">{current['person']}</div>
     </div>
     """, unsafe_allow_html=True)
-    
+
     # Navigation buttons
     col1, col2, col3 = st.columns([1, 2, 1])
     with col1:
-        st.button("← Previous", on_click=navigate, args=('prev',), key='prev', use_container_width=True)
+        st.button("← Previous", on_click=prev_card, use_container_width=True, key='prev')
     with col3:
-        st.button("Next →", on_click=navigate, args=('next',), key='next', use_container_width=True)
-else:
-    st.write("No duas found in the spreadsheet")
+        st.button("Next →", on_click=next_card, use_container_width=True, key='next')
 
-# Card counter
-st.caption(f"Card {st.session_state.current_card + 1} of {len(cards)}")
+    # Card counter
+    st.markdown(f"<div style='text-align: center; color: #95a5a6; margin-top: 1rem;'>"
+                f"Card {st.session_state.current_card + 1} of {len(cards)}</div>", 
+                unsafe_allow_html=True)
+else:
+    st.error("No cards found. Please check the spreadsheet format.")
+
+# Optional debug section
+st.write("Raw data from Google Sheets:")
+st.write(df)
