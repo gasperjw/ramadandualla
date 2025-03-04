@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import random  # Needed for random.shuffle
 
-PASSWORD = "your_password"
+PASSWORD = "lla"
 
 
 def check_password():
