@@ -1,9 +1,6 @@
 import streamlit as st
 import pandas as pd
-import random
-
-# Define your password here
-PASSWORD = "your_password"
+import random  # Needed for random.shuffle
 
 def check_password():
     if "password_correct" not in st.session_state:
@@ -21,6 +18,7 @@ def check_password():
     return True
 
 if check_password():
+
     @st.cache_data
     def load_data():
         sheet_url = "https://docs.google.com/spreadsheets/d/1L47EyHGWSRkEdCybjH1Sp_OLKbB9LpZshpq9GItqxNw/export?format=csv&gid=1747270692"
@@ -34,21 +32,21 @@ if check_password():
                     cards.append({"text": dua, "person": person})
         random.shuffle(cards)  # Initial shuffle
         return cards
-
-    # Load data and assign to the global variable
+    
+    # Load data and assign it to a global variable
     cards = load_data()
-
-    # Initialize session state for card navigation
+    
+    # Initialize session state
     if 'current_card' not in st.session_state:
         st.session_state.current_card = 0
-
+    
     # Navigation functions
     def next_card():
         st.session_state.current_card = (st.session_state.current_card + 1) % len(cards)
-
+    
     def prev_card():
         st.session_state.current_card = (st.session_state.current_card - 1) % len(cards)
-
+    
     # Custom CSS with improved styling
     st.markdown("""
     <style>
@@ -85,27 +83,32 @@ if check_password():
         }
     </style>
     """, unsafe_allow_html=True)
-
+    
     # Card display
     if cards:
         current = cards[st.session_state.current_card]
+        
         st.markdown(f"""
         <div class="card">
             <div class="dua-text">"{current['text']}"</div>
             <div class="person-name">{current['person']}</div>
         </div>
         """, unsafe_allow_html=True)
-
+    
         # Navigation buttons
         col1, col2, col3 = st.columns([1, 2, 1])
         with col1:
             st.button("← Previous", on_click=prev_card, use_container_width=True, key='prev')
         with col3:
             st.button("Next →", on_click=next_card, use_container_width=True, key='next')
-
+    
         # Card counter
         st.markdown(f"<div style='text-align: center; color: #95a5a6; margin-top: 1rem;'>"
                     f"Card {st.session_state.current_card + 1} of {len(cards)}</div>", 
                     unsafe_allow_html=True)
     else:
         st.error("No cards found. Please check the spreadsheet format.")
+    
+    # Optional debug section
+    # st.write("Raw data from Google Sheets:")
+    # st.write(df)
