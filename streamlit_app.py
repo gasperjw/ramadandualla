@@ -106,4 +106,6 @@ if check_password():
         # Card counter
         st.markdown(f"<div style='text-align: center; color: #95a5a6; margin-top: 1rem;'>"
                     f"Card {st.session_state.current_card + 1} of {len(cards)}</div>", 
- 
+                    unsafe_allow_html=True)
+    else:
+        st.error("No cards found. Please check the spreadsheet format.")
