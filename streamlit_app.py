@@ -14,7 +14,6 @@ def check_password():
         if st.button("Submit"):
             if password == PASSWORD:
                 st.session_state["password_correct"] = True
-                st.experimental_rerun()  # Rerun the app to update the view
             else:
                 st.error("Incorrect password. Please try again.")
         return False
